@@ -8,18 +8,93 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    @IBOutlet weak var talbeView: UITableView!
+    @IBOutlet weak var tbWordOrigin: UITextField!
+    @IBOutlet weak var tbWordTranslation: UITextField!
+    var wordCards: [String] = []
+    let url = URL(string: "http://localhost:3000/vocab")
 
+    func updateListOfWordCards(){
+        DispatchQueue.global(qos: .userInitiated).async { // 1
+            let task = URLSession.shared.dataTask(with: self.url!) { data, response, error in
+                guard error == nil else {
+                    print(error!)
+                    return
+                }
+                guard let data = data else {
+                    print("Data is empty")
+                    return
+                }
+                
+                let json = try! JSONSerialization.jsonObject(with: data, options: [])
+                for anItem in json as! [Dictionary<String, AnyObject>] { // or [[String:AnyObject]]
+                    let wordOrigin = anItem["wordOrigin"] as!  String
+                    let wordTranslation = anItem["wordTranslation"] as! String
+                    self.wordCards.append(wordOrigin+" - "+wordTranslation)
+                }
+                DispatchQueue.main.async { // 2
+                    self.talbeView.reloadData()
+                }
+            }
+            task.resume()
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        title = "The List"
+        talbeView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        self.talbeView.delegate = self
+        self.talbeView.dataSource = self
+        updateListOfWordCards()
+    }
+    @IBAction func addWord(_ sender: UIButton) {
+        let wordOrigin = self.tbWordOrigin.text!
+        let wordTranslation = self.tbWordTranslation.text!
+        var request = URLRequest(url: url!)
+        request.httpMethod = "POST"
+        let postString = "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation
+        request.httpBody = postString.data(using: .utf8)
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data, error == nil else {// check for fundamental networking error
+                print("error=\(error)")
+                return
+            }
+            
+            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
+                print("statusCode should be 200, but is \(httpStatus.statusCode)")
+                print("response = \(response)")
+            }
+            
+            let responseString = String(data: data, encoding: .utf8)
+            print("responseString = \(responseString)")
+            
+            self.wordCards.append(wordOrigin+" - "+wordTranslation)
+            self.talbeView.reloadData()
+        }
+        task.resume()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func tableView(_ tableView: UITableView,
+                   numberOfRowsInSection section: Int) -> Int {
+        return wordCards.count
+    }
+    
+    func tableView(_ tableView: UITableView,
+                   cellForRowAt indexPath: IndexPath)
+        -> UITableViewCell {
+            let cell =
+                tableView.dequeueReusableCell(withIdentifier: "Cell",
+                                              for: indexPath)
+            cell.textLabel?.text = wordCards[indexPath.row]
+            return cell
+    }
 
 
 }
-

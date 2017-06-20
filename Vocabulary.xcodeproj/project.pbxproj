@@ -15,6 +15,7 @@
 		ACB3BF031EF90A3800DCA247 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ACB3BF011EF90A3800DCA247 /* LaunchScreen.storyboard */; };
 		ACB3BF0E1EF90A3800DCA247 /* VocabularyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3BF0D1EF90A3800DCA247 /* VocabularyTests.swift */; };
 		ACB3BF191EF90A3800DCA247 /* VocabularyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3BF181EF90A3800DCA247 /* VocabularyUITests.swift */; };
+		ACB8A7191EF94BF200E72292 /* WordCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB8A7181EF94BF200E72292 /* WordCards.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		ACB3BF141EF90A3800DCA247 /* VocabularyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabularyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ACB3BF181EF90A3800DCA247 /* VocabularyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyUITests.swift; sourceTree = "<group>"; };
 		ACB3BF1A1EF90A3900DCA247 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ACB8A7181EF94BF200E72292 /* WordCards.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordCards.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				ACB3BF011EF90A3800DCA247 /* LaunchScreen.storyboard */,
 				ACB3BF041EF90A3800DCA247 /* Info.plist */,
 				ACB3BEFC1EF90A3800DCA247 /* Vocabulary.xcdatamodeld */,
+				ACB8A7181EF94BF200E72292 /* WordCards.swift */,
 			);
 			path = Vocabulary;
 			sourceTree = "<group>";
@@ -265,6 +268,7 @@
 				ACB3BEF81EF90A3800DCA247 /* ViewController.swift in Sources */,
 				ACB3BEFE1EF90A3800DCA247 /* Vocabulary.xcdatamodeld in Sources */,
 				ACB3BEF61EF90A3800DCA247 /* AppDelegate.swift in Sources */,
+				ACB8A7191EF94BF200E72292 /* WordCards.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -507,6 +511,7 @@
 				ACB3BF1F1EF90A3900DCA247 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		ACB3BF201EF90A3900DCA247 /* Build configuration list for PBXNativeTarget "VocabularyTests" */ = {
 			isa = XCConfigurationList;
@@ -515,6 +520,7 @@
 				ACB3BF221EF90A3900DCA247 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		ACB3BF231EF90A3900DCA247 /* Build configuration list for PBXNativeTarget "VocabularyUITests" */ = {
 			isa = XCConfigurationList;
@@ -523,6 +529,7 @@
 				ACB3BF251EF90A3900DCA247 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
