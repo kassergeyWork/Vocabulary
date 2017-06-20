@@ -75,7 +75,7 @@
                                 </constraints>
                             </stackView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="KNW-QV-CqX">
-                                <rect key="frame" x="16" y="196" width="343" height="461"/>
+                                <rect key="frame" x="16" y="198" width="343" height="461"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="k7v-tv-yq4"/>
@@ -95,6 +95,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="2MF-iD-h2X"/>
                     <connections>
+                        <outlet property="tableViewSource" destination="KNW-QV-CqX" id="5Tf-8M-NHV"/>
                         <outlet property="talbeView" destination="KNW-QV-CqX" id="JUu-Nx-EWV"/>
                         <outlet property="tbWordOrigin" destination="yHE-G6-nkw" id="Knp-a3-49m"/>
                         <outlet property="tbWordTranslation" destination="d9u-h9-4yS" id="NBg-8X-Oc1"/>

@@ -10,9 +10,11 @@ import UIKit
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var talbeView: UITableView!
+    @IBOutlet weak var tableViewSource: UITableView!
     @IBOutlet weak var tbWordOrigin: UITextField!
     @IBOutlet weak var tbWordTranslation: UITextField!
     var wordCards: [String] = []
+    var wordCardsIds: [String] = []
     let url = URL(string: "http://localhost:3000/vocab")
 
     func updateListOfWordCards(){
@@ -31,7 +33,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 for anItem in json as! [Dictionary<String, AnyObject>] { // or [[String:AnyObject]]
                     let wordOrigin = anItem["wordOrigin"] as!  String
                     let wordTranslation = anItem["wordTranslation"] as! String
+                    let id = anItem["_id"] as! String
                     self.wordCards.append(wordOrigin+" - "+wordTranslation)
+                    self.wordCardsIds.append(id)
                 }
                 DispatchQueue.main.async { // 2
                     self.talbeView.reloadData()
@@ -45,6 +49,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         super.viewDidLoad()
         title = "The List"
         talbeView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        self.talbeView.allowsSelection = true
+        
         self.talbeView.delegate = self
         self.talbeView.dataSource = self
         updateListOfWordCards()
@@ -71,6 +77,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             print("responseString = \(responseString)")
             
             self.wordCards.append(wordOrigin+" - "+wordTranslation)
+            let json = try! JSONSerialization.jsonObject(with: data, options: [])
+            let jsonArr = json as! Dictionary<String, AnyObject>
+            self.wordCardsIds.append(jsonArr["_id"] as! String)
             self.talbeView.reloadData()
         }
         task.resume()
@@ -95,6 +104,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             cell.textLabel?.text = wordCards[indexPath.row]
             return cell
     }
-
-
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
+        print(indexPath)
+    }
 }

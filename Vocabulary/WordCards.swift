@@ -7,7 +7,10 @@
 //
 
 import Foundation
+import UIKit
 
-class WordCards{
-    
+class WordCards: NSObject, UITableViewDelegate{
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
+        print("data")
+    }
 }
