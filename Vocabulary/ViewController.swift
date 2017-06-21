@@ -32,33 +32,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         updateListOfWordCards()
     }
     @IBAction func addWord(_ sender: UIButton) {
-        let wordOrigin = self.tbWordOrigin.text!
-        let wordTranslation = self.tbWordTranslation.text!
-        var request = URLRequest(url: url!)
-        request.httpMethod = "POST"
-        let postString = "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation
-        request.httpBody = postString.data(using: .utf8)
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data, error == nil else {// check for fundamental networking error
-                print("error=\(error)")
-                return
-            }
-            
-            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                print("response = \(response)")
-            }
-            
-            let responseString = String(data: data, encoding: .utf8)
-            print("responseString = \(responseString)")
-            
-            self.vocabRestful.wordCards.append(wordOrigin+" - "+wordTranslation)
-            let json = try! JSONSerialization.jsonObject(with: data, options: [])
-            let jsonArr = json as! Dictionary<String, AnyObject>
-            self.vocabRestful.wordCardsIds.append(jsonArr["_id"] as! String)
+        let wordOrigin = self.tbWordOrigin.text! as String
+        let wordTranslation = self.tbWordTranslation.text! as String
+        self.vocabRestful.addWord(wordOrigin, wordTranslation: wordTranslation, callback: {()->Void in
             self.talbeView.reloadData()
-        }
-        task.resume()
+        })
     }
 
     override func didReceiveMemoryWarning() {
@@ -112,7 +90,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                                             print("responseString = \(responseString)")
                                         }
                                         task.resume()
-                                        
         }
         
         let cancelAction = UIAlertAction(title: "Cancel",
