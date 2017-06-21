@@ -13,36 +13,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var tableViewSource: UITableView!
     @IBOutlet weak var tbWordOrigin: UITextField!
     @IBOutlet weak var tbWordTranslation: UITextField!
-    var wordCards: [String] = []
-    var wordCardsIds: [String] = []
+    let vocabRestful = VocabRestful("http://localhost:3000/vocab")
     let urlString = "http://localhost:3000/vocab"
     let url = URL(string: "http://localhost:3000/vocab")
 
     func updateListOfWordCards(){
-        DispatchQueue.global(qos: .userInitiated).async { // 1
-            let task = URLSession.shared.dataTask(with: self.url!) { data, response, error in
-                guard error == nil else {
-                    print(error!)
-                    return
-                }
-                guard let data = data else {
-                    print("Data is empty")
-                    return
-                }
-                
-                let json = try! JSONSerialization.jsonObject(with: data, options: [])
-                for anItem in json as! [Dictionary<String, AnyObject>] { // or [[String:AnyObject]]
-                    let wordOrigin = anItem["wordOrigin"] as!  String
-                    let wordTranslation = anItem["wordTranslation"] as! String
-                    let id = anItem["_id"] as! String
-                    self.wordCards.append(wordOrigin+" - "+wordTranslation)
-                    self.wordCardsIds.append(id)
-                }
-                DispatchQueue.main.async { // 2
+        vocabRestful.updateListOfWordCards{
                     self.talbeView.reloadData()
-                }
-            }
-            task.resume()
         }
     }
     
@@ -75,10 +52,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(responseString)")
             
-            self.wordCards.append(wordOrigin+" - "+wordTranslation)
+            self.vocabRestful.wordCards.append(wordOrigin+" - "+wordTranslation)
             let json = try! JSONSerialization.jsonObject(with: data, options: [])
             let jsonArr = json as! Dictionary<String, AnyObject>
-            self.wordCardsIds.append(jsonArr["_id"] as! String)
+            self.vocabRestful.wordCardsIds.append(jsonArr["_id"] as! String)
             self.talbeView.reloadData()
         }
         task.resume()
@@ -91,7 +68,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
-        return wordCards.count
+        return self.vocabRestful.wordCards.count
     }
     
     func tableView(_ tableView: UITableView,
@@ -100,7 +77,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             let cell =
                 tableView.dequeueReusableCell(withIdentifier: "Cell",
                                               for: indexPath)
-            cell.textLabel?.text = wordCards[indexPath.row]
+            cell.textLabel?.text = self.vocabRestful.wordCards[indexPath.row]
             return cell
     }
     
@@ -113,7 +90,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let saveAction = UIAlertAction(title: "Yes",
                                        style: .default) {
                                         [unowned self] action in
-                                        var request = URLRequest(url: URL(string: self.urlString+"/"+self.wordCardsIds[selectedEl])!)
+                                        var request = URLRequest(url: URL(string: self.urlString+"/"+self.vocabRestful.wordCardsIds[selectedEl])!)
                                         request.httpMethod = "DELETE"
                                         let task = URLSession.shared.dataTask(with: request) { data, response, error in
                                             guard let data = data, error == nil else {// check for fundamental networking error
@@ -126,8 +103,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                                                 print("response = \(response)")
                                             }
                                             else{
-                                                self.wordCardsIds.remove(at: selectedEl)
-                                                self.wordCards.remove(at: selectedEl)
+                                                self.vocabRestful.wordCardsIds.remove(at: selectedEl)
+                                                self.vocabRestful.wordCards.remove(at: selectedEl)
                                                 self.talbeView.reloadData()
                                             }
                                             
