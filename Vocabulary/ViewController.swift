@@ -65,37 +65,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                                       message: "Do you really want to delete wordcard?",
                                       preferredStyle: .alert)
         
-        let saveAction = UIAlertAction(title: "Yes",
+        let yesAction = UIAlertAction(title: "Yes",
                                        style: .default) {
                                         [unowned self] action in
-                                        var request = URLRequest(url: URL(string: self.urlString+"/"+self.vocabRestful.wordCardsIds[selectedEl])!)
-                                        request.httpMethod = "DELETE"
-                                        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                                            guard let data = data, error == nil else {// check for fundamental networking error
-                                                print("error=\(error)")
-                                                return
-                                            }
-                                            
-                                            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                                                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                                                print("response = \(response)")
-                                            }
-                                            else{
-                                                self.vocabRestful.wordCardsIds.remove(at: selectedEl)
-                                                self.vocabRestful.wordCards.remove(at: selectedEl)
+                                        self.vocabRestful.deleteWord(selectedEl, callback: {
                                                 self.talbeView.reloadData()
-                                            }
-                                            
-                                            let responseString = String(data: data, encoding: .utf8)
-                                            print("responseString = \(responseString)")
-                                        }
-                                        task.resume()
+                                        })
         }
         
         let cancelAction = UIAlertAction(title: "Cancel",
                                          style: .default)
         
-        alert.addAction(saveAction)
+        alert.addAction(yesAction)
         alert.addAction(cancelAction)
         
         present(alert, animated: true)
