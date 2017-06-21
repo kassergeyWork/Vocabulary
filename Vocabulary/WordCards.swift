@@ -9,8 +9,5 @@
 import Foundation
 import UIKit
 
-class WordCards: NSObject, UITableViewDelegate{
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
-        print("data")
-    }
+class WordCards{
 }

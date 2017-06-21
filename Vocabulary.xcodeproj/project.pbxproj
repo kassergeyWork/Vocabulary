@@ -106,12 +106,12 @@
 				ACB3BEF51EF90A3800DCA247 /* AppDelegate.swift */,
 				ACB3BEF71EF90A3800DCA247 /* ViewController.swift */,
 				ACB8A7181EF94BF200E72292 /* WordCards.swift */,
+				ACB8A71A1EFA599400E72292 /* VocabRestful.swift */,
 				ACB3BEF91EF90A3800DCA247 /* Main.storyboard */,
 				ACB3BEFF1EF90A3800DCA247 /* Assets.xcassets */,
 				ACB3BF011EF90A3800DCA247 /* LaunchScreen.storyboard */,
 				ACB3BF041EF90A3800DCA247 /* Info.plist */,
 				ACB3BEFC1EF90A3800DCA247 /* Vocabulary.xcdatamodeld */,
-				ACB8A71A1EFA599400E72292 /* VocabRestful.swift */,
 			);
 			path = Vocabulary;
 			sourceTree = "<group>";
