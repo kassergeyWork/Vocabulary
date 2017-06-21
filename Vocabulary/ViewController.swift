@@ -15,6 +15,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var tbWordTranslation: UITextField!
     var wordCards: [String] = []
     var wordCardsIds: [String] = []
+    let urlString = "http://localhost:3000/vocab"
     let url = URL(string: "http://localhost:3000/vocab")
 
     func updateListOfWordCards(){
@@ -47,10 +48,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "The List"
         talbeView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         self.talbeView.allowsSelection = true
-        
         self.talbeView.delegate = self
         self.talbeView.dataSource = self
         updateListOfWordCards()
@@ -106,6 +105,45 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
-        print(indexPath)
+        let selectedEl = indexPath[1]
+        let alert = UIAlertController(title: "Deleting wordcard",
+                                      message: "Do you really want to delete wordcard?",
+                                      preferredStyle: .alert)
+        
+        let saveAction = UIAlertAction(title: "Yes",
+                                       style: .default) {
+                                        [unowned self] action in
+                                        var request = URLRequest(url: URL(string: self.urlString+"/"+self.wordCardsIds[selectedEl])!)
+                                        request.httpMethod = "DELETE"
+                                        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                                            guard let data = data, error == nil else {// check for fundamental networking error
+                                                print("error=\(error)")
+                                                return
+                                            }
+                                            
+                                            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
+                                                print("statusCode should be 200, but is \(httpStatus.statusCode)")
+                                                print("response = \(response)")
+                                            }
+                                            else{
+                                                self.wordCardsIds.remove(at: selectedEl)
+                                                self.wordCards.remove(at: selectedEl)
+                                                self.talbeView.reloadData()
+                                            }
+                                            
+                                            let responseString = String(data: data, encoding: .utf8)
+                                            print("responseString = \(responseString)")
+                                        }
+                                        task.resume()
+                                        
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel",
+                                         style: .default)
+        
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
     }
 }
