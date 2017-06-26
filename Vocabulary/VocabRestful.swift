@@ -160,19 +160,16 @@ class VocabRestful {
                         return
                 }
                 let managedContext = appDelegate.persistentContainer.viewContext
-                let deleteFetch =
-                    NSFetchRequest<NSFetchRequestResult>(entityName: "WordCard")
-                deleteFetch.predicate = NSPredicate.init(format: "id=='\(idOfWord)'")
-                do{
-                    try deleteFetch.execute()
-                    print(deleteFetch.)
+                let fetchRequest =
+                    NSFetchRequest<NSManagedObject>(entityName: "WordCard")
+                fetchRequest.predicate = NSPredicate.init(format: "id = %@", idOfWord!)
+                if let result = try? managedContext.fetch(fetchRequest) {
+                    for object in result {
+                        print("text")
+                        managedContext.delete(object)
+                    }
                 }
-                catch{
-                    
-                }
-                let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
                 do {
-                    try managedContext.execute(deleteRequest)
                     try managedContext.save()
                     self.wordCardsCoreData.remove(at: id)
                 } catch {
