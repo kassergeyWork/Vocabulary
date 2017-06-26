@@ -13,8 +13,6 @@ import CoreData
 class VocabRestful {
     private let urlString: String
     private let url: URL
-    private var wordCards: [String] = []
-    private var wordCardsIds: [String] = []
     var wordCardsCoreData: [NSManagedObject] = []
     var amountOfCards: Int{
         get{
@@ -46,8 +44,6 @@ class VocabRestful {
                     let wordOrigin = anItem["wordOrigin"] as!  String
                     let wordTranslation = anItem["wordTranslation"] as! String
                     let id = anItem["_id"] as! String
-                    self.wordCards.append(wordOrigin+" - "+wordTranslation)
-                    self.wordCardsIds.append(id)
                     self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id)
                 }
                 DispatchQueue.main.async { // 2
@@ -110,10 +106,8 @@ class VocabRestful {
                 print("response = \(response)")
             }
             else{
-                self.wordCards.append(wordOrigin+" - "+wordTranslation)
                 let json = try! JSONSerialization.jsonObject(with: data, options: [])
                 let jsonArr = json as! Dictionary<String, AnyObject>
-                self.wordCardsIds.append(jsonArr["_id"] as! String)
                 self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: jsonArr["_id"] as! String)
                 callback();
             }
@@ -147,7 +141,8 @@ class VocabRestful {
         }
     }
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
-        var request = URLRequest(url: URL(string: self.urlString+"/"+self.wordCardsIds[id])!)
+        let idOfWord = self.wordCardsCoreData[id].value(forKeyPath: "id") as? String
+        var request = URLRequest(url: URL(string: self.urlString+"/"+idOfWord!)!)
         request.httpMethod = "DELETE"
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
@@ -160,22 +155,28 @@ class VocabRestful {
                 print("response = \(response)")
             }
             else{
-                self.wordCardsIds.remove(at: id)
-                self.wordCards.remove(at: id)
                 guard let appDelegate =
                     UIApplication.shared.delegate as? AppDelegate else {
                         return
                 }
                 let managedContext = appDelegate.persistentContainer.viewContext
                 let deleteFetch =
-                    NSFetchRequest<NSManagedObject>(entityName: "WordCard")
-                deleteFetch.predicate = NSPredicate.init(format: "id=='\(self.wordCardsIds[id])'")
-                print(self.wordCardsIds[id])
-                if let result = try? managedContext.fetch(fetchRequest) {
-                    for object in result {
-                        print(self.wordCardsIds[id])
-                        managedContext.delete(object)
-                    }
+                    NSFetchRequest<NSFetchRequestResult>(entityName: "WordCard")
+                deleteFetch.predicate = NSPredicate.init(format: "id=='\(idOfWord)'")
+                do{
+                    try deleteFetch.execute()
+                    print(deleteFetch.)
+                }
+                catch{
+                    
+                }
+                let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
+                do {
+                    try managedContext.execute(deleteRequest)
+                    try managedContext.save()
+                    self.wordCardsCoreData.remove(at: id)
+                } catch {
+                    print ("There was an error")
                 }
                 callback();
             }
