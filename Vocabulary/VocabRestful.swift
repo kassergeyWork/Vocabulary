@@ -24,7 +24,7 @@ class VocabRestful {
     }
     public func getWordCard(index: Int) -> String{
         //return self.wordCards[index];
-        return (self.wordCardsCoreData[index].value(forKeyPath: "wordOrigin") as? String)! + (self.wordCardsCoreData[index].value(forKeyPath: "wordTranslation") as? String)!
+        return (self.wordCardsCoreData[index].value(forKeyPath: "wordOrigin") as? String)! + " - " + (self.wordCardsCoreData[index].value(forKeyPath: "wordTranslation") as? String)!
     }
     init(_ urlString: String) {
         self.urlString = urlString
@@ -32,6 +32,9 @@ class VocabRestful {
     }
     
     public func getWords(callback:@escaping ()->Void) {
+        if(fetchDataFromCoreData()){
+            return
+        }
         DispatchQueue.global(qos: .userInitiated).async { // 1
             let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
                 if(self.isFundamentalNetErr(data: data, error: error)){
@@ -52,6 +55,43 @@ class VocabRestful {
                 }
             }
             task.resume()
+        }
+    }
+    public func updateCoreDataWithServerVersion(callback:@escaping ()->Void){
+        let entity = "WordCard"
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
+        let request = NSBatchDeleteRequest(fetchRequest: fetch)
+        do{
+            try managedContext.execute(request)
+            self.wordCardsCoreData.removeAll()
+        }
+        catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+            return
+        }
+        callback()
+    }
+    private func fetchDataFromCoreData() -> Bool{
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return false
+        }
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "WordCard")
+        do {
+            self.wordCardsCoreData = try managedContext.fetch(fetchRequest)
+            return wordCardsCoreData.count != 0
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+            return false
         }
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String, callback:@escaping ()->Void){
@@ -98,7 +138,7 @@ class VocabRestful {
                                      insertInto: managedContext)
         wordCard.setValue(wordOrigin, forKeyPath: "wordOrigin")
         wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
-        wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
+        wordCard.setValue(id, forKeyPath: "id")
         do {
             try managedContext.save()
             self.wordCardsCoreData.append(wordCard)
@@ -122,6 +162,21 @@ class VocabRestful {
             else{
                 self.wordCardsIds.remove(at: id)
                 self.wordCards.remove(at: id)
+                guard let appDelegate =
+                    UIApplication.shared.delegate as? AppDelegate else {
+                        return
+                }
+                let managedContext = appDelegate.persistentContainer.viewContext
+                let deleteFetch =
+                    NSFetchRequest<NSManagedObject>(entityName: "WordCard")
+                deleteFetch.predicate = NSPredicate.init(format: "id=='\(self.wordCardsIds[id])'")
+                print(self.wordCardsIds[id])
+                if let result = try? managedContext.fetch(fetchRequest) {
+                    for object in result {
+                        print(self.wordCardsIds[id])
+                        managedContext.delete(object)
+                    }
+                }
                 callback();
             }
             

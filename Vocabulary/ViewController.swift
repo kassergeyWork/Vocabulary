@@ -14,10 +14,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var tbWordTranslation: UITextField!
     let vocabRestful = VocabRestful("http://localhost:3000/vocab")
     
-    func getWords(){
-        vocabRestful.getWords(callback: reloadDataOfTableView)
-    }
-    
     func reloadDataOfTableView(){
         self.talbeView.reloadData()
     }
@@ -28,7 +24,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         self.talbeView.allowsSelection = true
         self.talbeView.delegate = self
         self.talbeView.dataSource = self
-        getWords()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        vocabRestful.getWords(callback: reloadDataOfTableView)
     }
     @IBAction func addWord(_ sender: UIButton) {
         let wordOrigin = self.tbWordOrigin.text! as String
@@ -67,5 +65,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         alert.addAction(yesAction)
         alert.addAction(cancelAction)
         present(alert, animated: true)
+    }
+    
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
+        if motion == .motionShake {
+            print("shaked")
+            self.vocabRestful.updateCoreDataWithServerVersion(callback: self.reloadDataOfTableView)
+        }
     }
 }
