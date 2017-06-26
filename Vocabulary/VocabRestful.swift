@@ -8,19 +8,23 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 class VocabRestful {
     private let urlString: String
     private let url: URL
     private var wordCards: [String] = []
     private var wordCardsIds: [String] = []
+    var wordCardsCoreData: [NSManagedObject] = []
     var amountOfCards: Int{
         get{
-            return self.wordCards.count
+            //return self.wordCards.count
+            return self.wordCardsCoreData.count
         }
     }
     public func getWordCard(index: Int) -> String{
-        return self.wordCards[index];
+        //return self.wordCards[index];
+        return (self.wordCardsCoreData[index].value(forKeyPath: "wordOrigin") as? String)! + (self.wordCardsCoreData[index].value(forKeyPath: "wordTranslation") as? String)!
     }
     init(_ urlString: String) {
         self.urlString = urlString
@@ -41,6 +45,7 @@ class VocabRestful {
                     let id = anItem["_id"] as! String
                     self.wordCards.append(wordOrigin+" - "+wordTranslation)
                     self.wordCardsIds.append(id)
+                    self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id)
                 }
                 DispatchQueue.main.async { // 2
                     callback()
@@ -69,6 +74,7 @@ class VocabRestful {
                 let json = try! JSONSerialization.jsonObject(with: data, options: [])
                 let jsonArr = json as! Dictionary<String, AnyObject>
                 self.wordCardsIds.append(jsonArr["_id"] as! String)
+                self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: jsonArr["_id"] as! String)
                 callback();
             }
             
@@ -76,6 +82,29 @@ class VocabRestful {
             print("responseString = \(responseString)")
         }
         task.resume()
+    }
+    private func save(wordOrigin: String, wordTranslation: String, id: String) {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        let entity =
+            NSEntityDescription.entity(forEntityName: "WordCard",
+                                       in: managedContext)!
+        
+        let wordCard = NSManagedObject(entity: entity,
+                                     insertInto: managedContext)
+        wordCard.setValue(wordOrigin, forKeyPath: "wordOrigin")
+        wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
+        wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
+        do {
+            try managedContext.save()
+            self.wordCardsCoreData.append(wordCard)
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+        }
     }
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
         var request = URLRequest(url: URL(string: self.urlString+"/"+self.wordCardsIds[id])!)
