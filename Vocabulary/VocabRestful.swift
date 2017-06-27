@@ -67,6 +67,25 @@ class VocabRestful{
         }
         task.resume()
     }
+    func deleteWord(id: String) {
+        var request = URLRequest(url: URL(string: self.urlString+"/"+id)!)
+        request.httpMethod = "DELETE"
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if(self.isFundamentalNetErr(data: data, error: error)){
+                return
+            }
+            let data = data!
+            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
+                print("statusCode should be 200, but is \(httpStatus.statusCode)")
+                print("response = \(response)")
+            }
+            
+            let responseString = String(data: data, encoding: .utf8)
+            print("responseString = \(responseString)")
+        }
+        task.resume()
+        
+    }
     func isFundamentalNetErr(data: Data?, error: Error?) -> Bool{
         guard error == nil else {
             print(error!)

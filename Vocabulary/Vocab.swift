@@ -56,26 +56,9 @@ class Vocab {
     }
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
         let idOfWord = self.wordCards[id]["id"]
-        var request = URLRequest(url: URL(string: self.vocabRestful.urlString+"/"+idOfWord!)!)
-        request.httpMethod = "DELETE"
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if(self.vocabRestful.isFundamentalNetErr(data: data, error: error)){
-                return
-            }
-            let data = data!
-            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                print("response = \(response)")
-            }
-            else{
-                self.vocabRepository.removeById(id: idOfWord!)
-                self.wordCards.remove(at: id)
-                callback();
-            }
-            
-            let responseString = String(data: data, encoding: .utf8)
-            print("responseString = \(responseString)")
-        }
-        task.resume()
+        self.vocabRestful.deleteWord(id: idOfWord!)
+        self.vocabRepository.removeById(id: idOfWord!)
+        self.wordCards.remove(at: id)
+        callback()
     }
 }
