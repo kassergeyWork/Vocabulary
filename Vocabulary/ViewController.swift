@@ -14,7 +14,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var tbWordTranslation: UITextField!
     let vocab = Vocab()
     
-    func reloadDataOfTableView(){        self.talbeView.reloadData()
+    func reloadDataOfTableView(){
+        self.talbeView.reloadData()
     }
     
     override func viewDidLoad() {

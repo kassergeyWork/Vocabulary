@@ -14,7 +14,10 @@ import CoreData
 class VocabRepository{
     let entityName: String = "WordCard"
     
-    func save(wordOrigin: String, wordTranslation: String, id: String, callback:@escaping (_ wordCard: NSManagedObject)->Void) {
+    init() {
+    }
+    
+    func save(wordOrigin: String, wordTranslation: String, id: String, callback:@escaping (_ wordCard: Dictionary<String, String>)->Void) {
         guard let managedContext = self.getManagedContext() else{
             return
         }
@@ -29,7 +32,11 @@ class VocabRepository{
         wordCard.setValue(id, forKeyPath: "id")
         do {
             try managedContext.save()
-            callback(wordCard)
+            var wordCardC = Dictionary<String, String>()
+            wordCardC["wordOrigin"] = wordCard.value(forKeyPath: "wordOrigin") as? String
+            wordCardC["wordTranslation"] = wordCard.value(forKeyPath: "wordTranslation") as? String
+            wordCardC["id"] = wordCard.value(forKeyPath: "id") as? String
+            callback(wordCardC)
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
