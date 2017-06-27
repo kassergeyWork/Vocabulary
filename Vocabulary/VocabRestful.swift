@@ -10,28 +10,37 @@ import Foundation
 import UIKit
 import CoreData
 
-class VocabRestful {
+class Vocab {
     private let urlString: String
     private let url: URL
-    var wordCardsCoreData: [NSManagedObject] = []
+    var wordCards: [NSManagedObject] = []
+    let entityName: String = "WordCard"
     var amountOfCards: Int{
         get{
-            //return self.wordCards.count
-            return self.wordCardsCoreData.count
+            return self.wordCards.count
         }
     }
     public func getWordCard(index: Int) -> String{
-        //return self.wordCards[index];
-        return (self.wordCardsCoreData[index].value(forKeyPath: "wordOrigin") as? String)! + " - " + (self.wordCardsCoreData[index].value(forKeyPath: "wordTranslation") as? String)!
+        return (self.wordCards[index].value(forKeyPath: "wordOrigin") as? String)! + " - " + (self.wordCards[index].value(forKeyPath: "wordTranslation") as? String)!
     }
-    init(_ urlString: String) {
-        self.urlString = urlString
+    init() {
+        self.urlString = "http://localhost:3000/vocab"
         self.url = URL(string: urlString)!
     }
     
     public func getWords(callback:@escaping ()->Void) {
-        if(fetchDataFromCoreData()){
+        guard let managedContext = self.getManagedContext() else{
             return
+        }
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: entityName)
+        do {
+            self.wordCards = try managedContext.fetch(fetchRequest)
+            if(wordCards.count != 0){
+                return
+            }
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
         }
         DispatchQueue.global(qos: .userInitiated).async { // 1
             let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
@@ -54,41 +63,20 @@ class VocabRestful {
         }
     }
     public func updateCoreDataWithServerVersion(callback:@escaping ()->Void){
-        let entity = "WordCard"
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
+        guard let managedContext = self.getManagedContext() else{
+            return
         }
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let request = NSBatchDeleteRequest(fetchRequest: fetch)
         do{
             try managedContext.execute(request)
-            self.wordCardsCoreData.removeAll()
+            self.wordCards.removeAll()
         }
         catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
             return
         }
-        callback()
-    }
-    private func fetchDataFromCoreData() -> Bool{
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return false
-        }
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "WordCard")
-        do {
-            self.wordCardsCoreData = try managedContext.fetch(fetchRequest)
-            return wordCardsCoreData.count != 0
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-            return false
-        }
+        getWords(callback: callback)
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String, callback:@escaping ()->Void){
         var request = URLRequest(url: self.url)
@@ -118,60 +106,52 @@ class VocabRestful {
         task.resume()
     }
     private func save(wordOrigin: String, wordTranslation: String, id: String) {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
+        guard let managedContext = self.getManagedContext() else{
+            return
         }
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
         let entity =
-            NSEntityDescription.entity(forEntityName: "WordCard",
+            NSEntityDescription.entity(forEntityName: entityName,
                                        in: managedContext)!
         
         let wordCard = NSManagedObject(entity: entity,
-                                     insertInto: managedContext)
+                                       insertInto: managedContext)
         wordCard.setValue(wordOrigin, forKeyPath: "wordOrigin")
         wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
         wordCard.setValue(id, forKeyPath: "id")
         do {
             try managedContext.save()
-            self.wordCardsCoreData.append(wordCard)
+            self.wordCards.append(wordCard)
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
     }
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
-        let idOfWord = self.wordCardsCoreData[id].value(forKeyPath: "id") as? String
+        let idOfWord = self.wordCards[id].value(forKeyPath: "id") as? String
         var request = URLRequest(url: URL(string: self.urlString+"/"+idOfWord!)!)
         request.httpMethod = "DELETE"
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
             }
-            
             let data = data!
             if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
                 print("statusCode should be 200, but is \(httpStatus.statusCode)")
                 print("response = \(response)")
             }
             else{
-                guard let appDelegate =
-                    UIApplication.shared.delegate as? AppDelegate else {
-                        return
+                guard let managedContext = self.getManagedContext() else{
+                    return
                 }
-                let managedContext = appDelegate.persistentContainer.viewContext
-                let fetchRequest =
-                    NSFetchRequest<NSManagedObject>(entityName: "WordCard")
+                let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
                 fetchRequest.predicate = NSPredicate.init(format: "id = %@", idOfWord!)
                 if let result = try? managedContext.fetch(fetchRequest) {
                     for object in result {
-                        print("text")
                         managedContext.delete(object)
                     }
                 }
                 do {
                     try managedContext.save()
-                    self.wordCardsCoreData.remove(at: id)
+                    self.wordCards.remove(at: id)
                 } catch {
                     print ("There was an error")
                 }
@@ -183,7 +163,12 @@ class VocabRestful {
         }
         task.resume()
     }
-    
+    private func getManagedContext() -> NSManagedObjectContext?{
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+                return nil
+        }
+        return appDelegate.persistentContainer.viewContext
+    }
     private func isFundamentalNetErr(data: Data?, error: Error?) -> Bool{
         guard error == nil else {
             print(error!)
