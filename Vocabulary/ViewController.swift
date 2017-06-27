@@ -69,7 +69,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
         if motion == .motionShake {
-            self.vocab.updateCoreDataWithServerVersion(callback: self.reloadDataOfTableView)
+            self.vocab.synchronizeLocalToServer(callback: self.reloadDataOfTableView)
         }
     }
 }

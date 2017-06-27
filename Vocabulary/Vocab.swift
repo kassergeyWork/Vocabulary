@@ -42,7 +42,7 @@ class Vocab {
     private func addWordCard(_ wordCard: Dictionary<String, String>){
             self.wordCards.append(wordCard)
     }
-    public func updateCoreDataWithServerVersion(callback:@escaping ()->Void){
+    public func synchronizeLocalToServer(callback:@escaping ()->Void){
         vocabRepository.clearRepositary()
         self.wordCards.removeAll()
         getWords(callback: callback)
@@ -60,7 +60,7 @@ class Vocab {
     }
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
         let idOfWord = self.wordCards[id]["id"]
-        self.vocabRestful.deleteWord(id: idOfWord!)
+        self.vocabRestful.removeById(id: idOfWord!)
         self.vocabRepository.removeById(id: idOfWord!)
         self.wordCards.remove(at: id)
         callback()

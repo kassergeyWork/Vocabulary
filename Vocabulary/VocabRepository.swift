@@ -32,8 +32,7 @@ class VocabRepository{
         guard let managedContext = self.getManagedContext() else{
             return true
         }
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: entityName)
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         do {
             self.wordCardsManagedObject = try managedContext.fetch(fetchRequest)
             if(wordCardsManagedObject.count == 0){
@@ -49,8 +48,7 @@ class VocabRepository{
         guard let managedContext = self.getManagedContext() else{
             return
         }
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: entityName)
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         do {
             wordCardsManagedObject = try managedContext.fetch(fetchRequest)
         } catch let error as NSError {
@@ -119,7 +117,7 @@ class VocabRepository{
                     print ("There was an error")
                 }
     }
-    func getManagedContext() -> NSManagedObjectContext?{
+    private func getManagedContext() -> NSManagedObjectContext?{
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
                 return nil
         }

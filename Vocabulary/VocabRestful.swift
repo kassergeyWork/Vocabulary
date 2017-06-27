@@ -67,7 +67,7 @@ class VocabRestful{
         }
         task.resume()
     }
-    func deleteWord(id: String) {
+    func removeById(id: String) {
         var request = URLRequest(url: URL(string: self.urlString+"/"+id)!)
         request.httpMethod = "DELETE"
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
