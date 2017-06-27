@@ -11,12 +11,38 @@ import Foundation
 class VocabRestful{
     let urlString: String
     let url: URL
+    private var wordCardsDict: [Dictionary<String, AnyObject>] = []
     
     init(_ urlString: String){
         self.urlString = urlString
         self.url = URL(string: urlString)!
     }
-    func addWordAndReturnId(_ wordOrigin: String, wordTranslation: String, finish:@escaping (_ id: String)->Void){
+    var wordCards : [Dictionary<String, String>] {
+        get{
+            var wordCardsRet: [Dictionary<String, String>] = []
+            for anItem in wordCardsDict{
+                var wordCard = Dictionary<String, String>()
+                wordCard["wordOrigin"] = anItem["wordOrigin"] as? String
+                wordCard["wordTranslation"] = anItem["wordTranslation"] as? String
+                wordCard["id"] = anItem["_id"] as? String
+                wordCardsRet.append(wordCard)
+            }
+            return wordCardsRet
+        }
+    }
+    func getWords(callback:@escaping ()->Void){
+        let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
+            if(self.isFundamentalNetErr(data: data, error: error)){
+                return
+            }
+            let data = data!
+            let json = try! JSONSerialization.jsonObject(with: data, options: [])
+            self.wordCardsDict = json as! [Dictionary<String, AnyObject>]
+            callback()
+        }
+        task.resume()
+    }
+    func addWord(_ wordOrigin: String, wordTranslation: String, finish:@escaping (_ id: String)->Void){
         var request = URLRequest(url: self.url)
         request.httpMethod = "POST"
         let postString = "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation
