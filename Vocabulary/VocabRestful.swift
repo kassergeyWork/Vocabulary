@@ -86,7 +86,7 @@ class VocabRestful{
         task.resume()
         
     }
-    func isFundamentalNetErr(data: Data?, error: Error?) -> Bool{
+    private func isFundamentalNetErr(data: Data?, error: Error?) -> Bool{
         guard error == nil else {
             print(error!)
             return true

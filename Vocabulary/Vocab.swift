@@ -28,10 +28,9 @@ class Vocab {
     public func getWords(callback:@escaping ()->Void) {
         if(vocabRepository.isRepositoryEmpty()){
             vocabRestful.getWords {
-                self.vocabRepository.saveWordCardsArrayOfDictionaryStrStr(self.vocabRestful.wordCards, callback: self.addWordCard)
-                DispatchQueue.main.async { // 2
-                    callback()
-                }
+                self.vocabRepository.saveWordCardsArrayOfDictionaryStrStr(self.vocabRestful.wordCards)
+                self.wordCards = self.vocabRestful.wordCards
+                callback()
             }
         } else {
             vocabRepository.getWords {
@@ -50,7 +49,12 @@ class Vocab {
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String, callback:@escaping ()->Void){
         vocabRestful.addWord(wordOrigin, wordTranslation: wordTranslation, finish: {id in
-            self.vocabRepository.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id, callback: self.addWordCard)
+            self.vocabRepository.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id)
+            var wordCardC = Dictionary<String, String>()
+            wordCardC["wordOrigin"] = wordOrigin
+            wordCardC["wordTranslation"] = wordTranslation
+            wordCardC["id"] = id
+            self.addWordCard(wordCardC)
             callback();
         })
     }

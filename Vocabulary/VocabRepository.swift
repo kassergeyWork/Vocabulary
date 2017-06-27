@@ -74,16 +74,16 @@ class VocabRepository{
         }
     }
     
-    func saveWordCardsArrayOfDictionaryStrStr(_ wordCards: [Dictionary<String, String>], callback:@escaping (_ wordCard: Dictionary<String, String>) -> Void){
+    func saveWordCardsArrayOfDictionaryStrStr(_ wordCards: [Dictionary<String, String>]){
         for anItem in wordCards {
             let wordOrigin = anItem["wordOrigin"]!
             let wordTranslation = anItem["wordTranslation"]!
             let id = anItem["id"]!
-            self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id, callback: callback)
+            self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id)
         }
     }
     
-    func save(wordOrigin: String, wordTranslation: String, id: String, callback:@escaping (_ wordCard: Dictionary<String, String>)->Void) {
+    func save(wordOrigin: String, wordTranslation: String, id: String) {
         guard let managedContext = self.getManagedContext() else{
             return
         }
@@ -98,11 +98,6 @@ class VocabRepository{
         wordCard.setValue(id, forKeyPath: "id")
         do {
             try managedContext.save()
-            var wordCardC = Dictionary<String, String>()
-            wordCardC["wordOrigin"] = wordCard.value(forKeyPath: "wordOrigin") as? String
-            wordCardC["wordTranslation"] = wordCard.value(forKeyPath: "wordTranslation") as? String
-            wordCardC["id"] = wordCard.value(forKeyPath: "id") as? String
-            callback(wordCardC)
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
