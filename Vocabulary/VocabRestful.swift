@@ -12,7 +12,6 @@ class VocabRestful{
     let urlString: String
     let url: URL
     private var wordCardsDict: [Dictionary<String, AnyObject>] = []
-    
     init(_ urlString: String){
         self.urlString = urlString
         self.url = URL(string: urlString)!
@@ -30,6 +29,9 @@ class VocabRestful{
             return wordCardsRet
         }
     }
+    
+    var vocabMediator: VocabMediatorProtocol!
+    
     func getWords(callback:@escaping ()->Void){
         let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
@@ -42,7 +44,7 @@ class VocabRestful{
         }
         task.resume()
     }
-    func addWord(_ wordOrigin: String, wordTranslation: String, finish:@escaping (_ id: String)->Void){
+    func addWord(_ wordOrigin: String, wordTranslation: String){
         var request = URLRequest(url: self.url)
         request.httpMethod = "POST"
         let postString = "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation
@@ -58,28 +60,48 @@ class VocabRestful{
                 print("response = \(response)")
             }
             else{
-                let json = try! JSONSerialization.jsonObject(with: data, options: [])
-                let jsonArr = json as! Dictionary<String, AnyObject>
-                finish(jsonArr["_id"] as! String)
             }
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(responseString)")
         }
         task.resume()
     }
-    func removeById(id: String) {
-        var request = URLRequest(url: URL(string: self.urlString+"/"+id)!)
-        request.httpMethod = "DELETE"
+    func removeByOrigin(origin: String) {
+        var request = URLRequest(url: self.url)
+        request.httpMethod = "POST"
+        let postString = "wordOrigin="+origin
+        request.httpBody = postString.data(using: .utf8)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
             }
+            
             let data = data!
             if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
                 print("statusCode should be 200, but is \(httpStatus.statusCode)")
                 print("response = \(response)")
             }
-            
+            else{
+                let json = try! JSONSerialization.jsonObject(with: data, options: [])
+                let jsonArr = json as! Dictionary<String, AnyObject>
+                let id = jsonArr["_id"] as! String
+                var request1 = URLRequest(url: URL(string: self.urlString+"/"+id)!)
+                request1.httpMethod = "DELETE"
+                let task1 = URLSession.shared.dataTask(with: request) { data, response, error in
+                    if(self.isFundamentalNetErr(data: data, error: error)){
+                        return
+                    }
+                    let data = data!
+                    if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
+                        print("statusCode should be 200, but is \(httpStatus.statusCode)")
+                        print("response = \(response)")
+                    }
+                    
+                    let responseString = String(data: data, encoding: .utf8)
+                    print("responseString = \(responseString)")
+                }
+                task1.resume()
+            }
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(responseString)")
         }

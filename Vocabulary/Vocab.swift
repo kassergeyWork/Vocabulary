@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Vocab {
+class Vocab : VocabMediatorProtocol {
     var wordCards: [Dictionary<String, String>] = []
     public var vocabRepository: VocabRepository
     public var vocabRestful: VocabRestful
@@ -20,9 +20,15 @@ class Vocab {
     public func getWordCard(index: Int) -> String{
         return (self.wordCards[index]["wordOrigin"])! + " - " + (self.wordCards[index]["wordTranslation"])!
     }
+    
     init() {
         self.vocabRestful = VocabRestful("http://localhost:3000/vocab")
         self.vocabRepository = VocabRepository()
+    }
+    
+    public func initMediators(){
+        self.vocabRestful.vocabMediator = self;
+        self.vocabRepository.vocabMediator = self;
     }
     
     public func getWords(callback:@escaping ()->Void) {
@@ -48,21 +54,30 @@ class Vocab {
         getWords(callback: callback)
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String, callback:@escaping ()->Void){
-        vocabRestful.addWord(wordOrigin, wordTranslation: wordTranslation, finish: {id in
-            self.vocabRepository.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id)
-            var wordCardC = Dictionary<String, String>()
-            wordCardC["wordOrigin"] = wordOrigin
-            wordCardC["wordTranslation"] = wordTranslation
-            wordCardC["id"] = id
-            self.addWordCard(wordCardC)
-            callback();
-        })
+        vocabRestful.addWord(wordOrigin, wordTranslation: wordTranslation)
+        vocabRepository.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        var wordCardC = Dictionary<String, String>()
+        wordCardC["wordOrigin"] = wordOrigin
+        wordCardC["wordTranslation"] = wordTranslation
+        self.addWordCard(wordCardC)
+        callback();
     }
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
         let idOfWord = self.wordCards[id]["id"]
-        self.vocabRestful.removeById(id: idOfWord!)
-        self.vocabRepository.removeById(id: idOfWord!)
+        self.vocabRestful.removeByOrigin(origin: idOfWord!)
+        self.vocabRepository.removeByOrigin(origin: idOfWord!)
         self.wordCards.remove(at: id)
         callback()
+    }
+    
+    //MARK: VocabMediatorProtocol
+    func onDelete(id: String){
+        
+    }
+    func onLoads(){
+        
+    }
+    func onAdd(id: String){
+        
     }
 }

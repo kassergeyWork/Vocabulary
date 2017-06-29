@@ -27,6 +27,7 @@ class VocabRepository{
             return wordCardsRet
         }
     }
+    var vocabMediator: VocabMediatorProtocol!
     
     func isRepositoryEmpty() -> Bool {
         guard let managedContext = self.getManagedContext() else{
@@ -76,12 +77,11 @@ class VocabRepository{
         for anItem in wordCards {
             let wordOrigin = anItem["wordOrigin"]!
             let wordTranslation = anItem["wordTranslation"]!
-            let id = anItem["id"]!
-            self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation, id: id)
+            self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
         }
     }
     
-    func save(wordOrigin: String, wordTranslation: String, id: String) {
+    func save(wordOrigin: String, wordTranslation: String) {
         guard let managedContext = self.getManagedContext() else{
             return
         }
@@ -93,19 +93,18 @@ class VocabRepository{
                                        insertInto: managedContext)
         wordCard.setValue(wordOrigin, forKeyPath: "wordOrigin")
         wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
-        wordCard.setValue(id, forKeyPath: "id")
         do {
             try managedContext.save()
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
     }
-    func removeById(id: String) {
+    func removeByOrigin(origin: String) {
                 guard let managedContext = self.getManagedContext() else{
                     return
                 }
                 let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
-                fetchRequest.predicate = NSPredicate.init(format: "id = %@", id)
+                fetchRequest.predicate = NSPredicate.init(format: "wordOrigin = %@", origin)
                 if let result = try? managedContext.fetch(fetchRequest) {
                     for object in result {
                         managedContext.delete(object)
