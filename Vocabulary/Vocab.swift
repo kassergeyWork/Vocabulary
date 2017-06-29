@@ -33,10 +33,12 @@ class Vocab : VocabMediatorProtocol {
     }
     
     public func getWords(callback:@escaping ()->Void) {
+        funcKostil = callback;
         if(vocabRepository.isRepositoryEmpty()){
             vocabRestful.getWords()
+        } else {
+            vocabRepository.getWords()
         }
-        funcKostil = callback;
     }
     private func addWordCard(_ wordCard: Dictionary<String, String>){
             self.wordCards.append(wordCard)

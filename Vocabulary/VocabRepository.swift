@@ -27,6 +27,7 @@ class VocabRepository{
             return wordCardsRet
         }
     }
+    
     var vocabMediator: VocabMediatorProtocol!
     
     func isRepositoryEmpty() -> Bool {
@@ -89,8 +90,7 @@ class VocabRepository{
             NSEntityDescription.entity(forEntityName: entityName,
                                        in: managedContext)!
         
-        let wordCard = NSManagedObject(entity: entity,
-                                       insertInto: managedContext)
+        let wordCard = NSManagedObject(entity: entity, insertInto: managedContext)
         wordCard.setValue(wordOrigin, forKeyPath: "wordOrigin")
         wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
         do {
