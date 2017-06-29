@@ -18,10 +18,7 @@ class VocabRepository{
         get{
             var wordCardsRet: [Dictionary<String, String>] = []
             for anItem in wordCardsManagedObject{
-                var wordCard = Dictionary<String, String>()
-                wordCard["wordOrigin"] = anItem.value(forKeyPath: "wordOrigin") as? String
-                wordCard["wordTranslation"] = anItem.value(forKeyPath: "wordTranslation") as? String
-                wordCard["id"] = anItem.value(forKeyPath: "id") as? String
+                let wordCard = ["wordOrigin" : anItem.value(forKeyPath: "wordOrigin") as! String, "wordTranslation" : anItem.value(forKeyPath: "wordTranslation") as! String, "id" :  anItem.value(forKeyPath: "id") as! String]
                 wordCardsRet.append(wordCard)
             }
             return wordCardsRet
@@ -78,11 +75,11 @@ class VocabRepository{
         for anItem in wordCards {
             let wordOrigin = anItem["wordOrigin"]!
             let wordTranslation = anItem["wordTranslation"]!
-            self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+            self.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
         }
     }
     
-    func save(wordOrigin: String, wordTranslation: String) {
+    func addWord(wordOrigin: String, wordTranslation: String, id: String) {
         guard let managedContext = self.getManagedContext() else{
             return
         }
@@ -93,6 +90,7 @@ class VocabRepository{
         let wordCard = NSManagedObject(entity: entity, insertInto: managedContext)
         wordCard.setValue(wordOrigin, forKeyPath: "wordOrigin")
         wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
+        wordCard.setValue(id, forKeyPath: "idInternal")
         do {
             try managedContext.save()
         } catch let error as NSError {

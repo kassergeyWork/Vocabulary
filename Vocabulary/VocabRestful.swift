@@ -20,10 +20,7 @@ class VocabRestful{
         get{
             var wordCardsRet: [Dictionary<String, String>] = []
             for anItem in wordCardsDict{
-                var wordCard = Dictionary<String, String>()
-                wordCard["wordOrigin"] = anItem["wordOrigin"] as? String
-                wordCard["wordTranslation"] = anItem["wordTranslation"] as? String
-                wordCard["id"] = anItem["_id"] as? String
+                let wordCard = ["wordOrigin" : anItem["wordOrigin"] as! String, "wordTranslation" : anItem["wordTranslation"] as! String, "id" :  anItem["_id"] as! String]
                 wordCardsRet.append(wordCard)
             }
             return wordCardsRet

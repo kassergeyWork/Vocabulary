@@ -50,10 +50,8 @@ class Vocab : VocabMediatorProtocol {
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String, callback:@escaping ()->Void){
         vocabRestful.addWord(wordOrigin, wordTranslation: wordTranslation)
-        vocabRepository.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
-        var wordCardC = Dictionary<String, String>()
-        wordCardC["wordOrigin"] = wordOrigin
-        wordCardC["wordTranslation"] = wordTranslation
+        vocabRepository.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        let wordCardC = ["wordOrigin" : wordOrigin, "wordTranslation" : wordTranslation]
         self.addWordCard(wordCardC)
         callback();
     }
