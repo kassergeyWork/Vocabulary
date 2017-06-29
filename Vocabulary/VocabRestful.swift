@@ -67,7 +67,7 @@ class VocabRestful{
         task.resume()
     }
     func removeByOrigin(origin: String) {
-        var request = URLRequest(url: self.url)
+        var request = URLRequest(url: URL(string: self.urlString+"/getWord")!)
         request.httpMethod = "POST"
         let postString = "wordOrigin="+origin
         request.httpBody = postString.data(using: .utf8)

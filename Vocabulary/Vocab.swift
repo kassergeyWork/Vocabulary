@@ -63,9 +63,9 @@ class Vocab : VocabMediatorProtocol {
         callback();
     }
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
-        let idOfWord = self.wordCards[id]["id"]
-        self.vocabRestful.removeByOrigin(origin: idOfWord!)
-        self.vocabRepository.removeByOrigin(origin: idOfWord!)
+        let origin = self.wordCards[id]["wordOrigin"]
+        self.vocabRestful.removeByOrigin(origin: origin!)
+        self.vocabRepository.removeByOrigin(origin: origin!)
         self.wordCards.remove(at: id)
         callback()
     }
