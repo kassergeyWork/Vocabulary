@@ -32,7 +32,7 @@ class VocabRestful{
     
     var vocabMediator: VocabMediatorProtocol!
     
-    func getWords(callback:@escaping ()->Void){
+    func getWords(){
         let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
@@ -40,7 +40,7 @@ class VocabRestful{
             let data = data!
             let json = try! JSONSerialization.jsonObject(with: data, options: [])
             self.wordCardsDict = json as! [Dictionary<String, AnyObject>]
-            callback()
+            self.vocabMediator?.onLoads(wordCards: self.wordCards)
         }
         task.resume()
     }
@@ -87,7 +87,7 @@ class VocabRestful{
                 let id = jsonArr["_id"] as! String
                 var request1 = URLRequest(url: URL(string: self.urlString+"/"+id)!)
                 request1.httpMethod = "DELETE"
-                let task1 = URLSession.shared.dataTask(with: request) { data, response, error in
+                let task1 = URLSession.shared.dataTask(with: request1) { data, response, error in
                     if(self.isFundamentalNetErr(data: data, error: error)){
                         return
                     }

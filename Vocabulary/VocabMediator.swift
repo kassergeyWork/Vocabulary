@@ -9,6 +9,6 @@
 import Foundation
 protocol VocabMediatorProtocol {
     func onDelete(id: String)
-    func onLoads()
+    func onLoads(wordCards: [Dictionary<String, String>])
     func onAdd(id: String)
 }

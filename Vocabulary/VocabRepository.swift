@@ -45,7 +45,7 @@ class VocabRepository{
         return false
     }
     
-    func getWords(callback:@escaping ()->Void){
+    func getWords(){
         guard let managedContext = self.getManagedContext() else{
             return
         }
@@ -55,7 +55,7 @@ class VocabRepository{
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        callback()
+        vocabMediator.onLoads(wordCards: self.wordCards)
     }
     
     func clearRepositary() {

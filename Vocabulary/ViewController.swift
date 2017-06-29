@@ -20,6 +20,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.vocab.initMediators()
         talbeView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         self.talbeView.allowsSelection = true
         self.talbeView.delegate = self

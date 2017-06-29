@@ -12,6 +12,7 @@ class Vocab : VocabMediatorProtocol {
     var wordCards: [Dictionary<String, String>] = []
     public var vocabRepository: VocabRepository
     public var vocabRestful: VocabRestful
+    private var funcKostil: (()->Void)!
     var amountOfCards: Int{
         get{
             return self.wordCards.count
@@ -33,17 +34,9 @@ class Vocab : VocabMediatorProtocol {
     
     public func getWords(callback:@escaping ()->Void) {
         if(vocabRepository.isRepositoryEmpty()){
-            vocabRestful.getWords {
-                self.vocabRepository.saveWordCardsArrayOfDictionaryStrStr(self.vocabRestful.wordCards)
-                self.wordCards = self.vocabRestful.wordCards
-                callback()
-            }
-        } else {
-            vocabRepository.getWords {
-                self.wordCards = self.vocabRepository.wordCards
-                callback()
-            }
+            vocabRestful.getWords()
         }
+        funcKostil = callback;
     }
     private func addWordCard(_ wordCard: Dictionary<String, String>){
             self.wordCards.append(wordCard)
@@ -74,8 +67,13 @@ class Vocab : VocabMediatorProtocol {
     func onDelete(id: String){
         
     }
-    func onLoads(){
-        
+    func onLoads(wordCards: [Dictionary<String, String>]){
+        self.wordCards = wordCards
+        if(vocabRepository.isRepositoryEmpty())
+        {
+            self.vocabRepository.saveWordCardsArrayOfDictionaryStrStr(self.wordCards)
+        }
+        funcKostil()
     }
     func onAdd(id: String){
         
