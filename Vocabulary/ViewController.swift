@@ -12,7 +12,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var talbeView: UITableView!
     @IBOutlet weak var tbWordOrigin: UITextField!
     @IBOutlet weak var tbWordTranslation: UITextField!
-    let vocab = Vocab()
+    var vocab: Vocab!
     
     func reloadDataOfTableView(){
         self.talbeView.reloadData()
@@ -20,6 +20,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        vocab = Vocab(callback: reloadDataOfTableView)
         self.vocab.initMediators()
         talbeView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         self.talbeView.allowsSelection = true
@@ -27,12 +28,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         self.talbeView.dataSource = self
     }
     override func viewWillAppear(_ animated: Bool) {
-        vocab.getWords(callback: reloadDataOfTableView)
+        vocab.getWords()
     }
     @IBAction func addWord(_ sender: UIButton) {
         let wordOrigin = self.tbWordOrigin.text! as String
         let wordTranslation = self.tbWordTranslation.text! as String
-        self.vocab.addWord(wordOrigin, wordTranslation: wordTranslation, callback: reloadDataOfTableView)
+        self.vocab.addWord(wordOrigin, wordTranslation: wordTranslation)
     }
     
     override func didReceiveMemoryWarning() {
@@ -60,7 +61,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let yesAction = UIAlertAction(title: "Yes",
                                       style: .default) {
                                         [unowned self] action in
-                                        self.vocab.deleteWord(selectedEl, callback: self.reloadDataOfTableView)
+                                        self.vocab.deleteWord(selectedEl)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .default)
         alert.addAction(yesAction)
@@ -70,7 +71,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
         if motion == .motionShake {
-            self.vocab.synchronizeLocalToServer(callback: self.reloadDataOfTableView)
+            self.vocab.synchronizeLocalToServer()
         }
     }
 }

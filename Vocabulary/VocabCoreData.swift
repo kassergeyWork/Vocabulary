@@ -11,7 +11,7 @@ import UIKit
 import CoreData
 
 
-class VocabCoreData : VocabRepository{
+class VocabCoreData : VocabRepositary{
     let entityName: String = "WordCard"
     private var wordCardsManagedObject: [NSManagedObject] = []
     var wordCards : [Dictionary<String, String>] {
@@ -29,6 +29,9 @@ class VocabCoreData : VocabRepository{
     }
     
     var vocabMediator: VocabMediatorProtocol!
+    func setMediator(mediator: VocabMediatorProtocol) {
+        self.vocabMediator = mediator
+    }
     
     func isRepositoryEmpty() -> Bool {
         guard let managedContext = self.getManagedContext() else{

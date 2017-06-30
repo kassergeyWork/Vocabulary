@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol VocabRepository {
+protocol VocabRepositary {
     func addWord(wordOrigin: String, wordTranslation: String)
     func removeByOrigin(origin: String)
     func getWords()
@@ -16,4 +16,5 @@ protocol VocabRepository {
     func isRepositoryEmpty() -> Bool
     func saveWordCardsArrayOfDictionaryStrStr(_ wordCards: [Dictionary<String, String>])
     func clearRepositary()
+    func setMediator(mediator: VocabMediatorProtocol)
 }

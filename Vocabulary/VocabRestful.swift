@@ -8,7 +8,7 @@
 
 import Foundation
 
-class VocabRestful: VocabRepository{
+class VocabRestful: VocabRepositary{
     let urlString: String
     let url: URL
     private var wordCardsDict: [Dictionary<String, AnyObject>] = []
@@ -31,6 +31,9 @@ class VocabRestful: VocabRepository{
     }
     
     var vocabMediator: VocabMediatorProtocol!
+    func setMediator(mediator: VocabMediatorProtocol) {
+        self.vocabMediator = mediator
+    }
     
     func getWords(){
         let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
