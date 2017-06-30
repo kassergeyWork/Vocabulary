@@ -12,7 +12,7 @@ import CoreData
 
 
 class VocabCoreData : VocabRepositary{
-    let entityName: String = "WordCard"
+    private let entityName: String = "WordCard"
     private var wordCardsManagedObject: [NSManagedObject] = []
     var wordCards : [Dictionary<String, String>] {
         get{
@@ -28,7 +28,7 @@ class VocabCoreData : VocabRepositary{
         }
     }
     
-    var vocabMediator: VocabMediatorProtocol!
+    private var vocabMediator: VocabMediatorProtocol!
     func setMediator(mediator: VocabMediatorProtocol) {
         self.vocabMediator = mediator
     }
@@ -44,7 +44,7 @@ class VocabCoreData : VocabRepositary{
                 return true
             }
         } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
+            printNSError(error: error)
         }
         return false
     }
@@ -56,10 +56,10 @@ class VocabCoreData : VocabRepositary{
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         do {
             wordCardsManagedObject = try managedContext.fetch(fetchRequest)
+            vocabMediator?.onLoads(wordCards: self.wordCards)
         } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
+            printNSError(error: error)
         }
-        vocabMediator?.onLoads(wordCards: self.wordCards)
     }
     
     func clearRepositary() {
@@ -72,7 +72,7 @@ class VocabCoreData : VocabRepositary{
             try managedContext.execute(request)
         }
         catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
+            printNSError(error: error)
             return
         }
     }
@@ -99,7 +99,7 @@ class VocabCoreData : VocabRepositary{
             try managedContext.save()
             self.vocabMediator?.onAdd(origin: wordOrigin)
         } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
+            printNSError(error: error)
         }
     }
     func removeByOrigin(origin: String) {
@@ -116,9 +116,12 @@ class VocabCoreData : VocabRepositary{
         do {
             try managedContext.save()
             vocabMediator?.onDelete(origin: origin)
-        } catch {
-            print ("There was an error")
+        } catch let error as NSError {
+            printNSError(error: error)
         }
+    }
+    private func printNSError(error: NSError){
+        print ("Could not fetch. \(error), \(error.userInfo)")
     }
     private func getManagedContext() -> NSManagedObjectContext?{
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {

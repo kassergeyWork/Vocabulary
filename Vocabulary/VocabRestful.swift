@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SystemConfiguration
 
 class VocabRestful: VocabRepositary{
     let urlString: String
@@ -30,7 +31,7 @@ class VocabRestful: VocabRepositary{
         }
     }
     
-    var vocabMediator: VocabMediatorProtocol!
+    private var vocabMediator: VocabMediatorProtocol!
     func setMediator(mediator: VocabMediatorProtocol) {
         self.vocabMediator = mediator
     }
@@ -48,50 +49,47 @@ class VocabRestful: VocabRepositary{
         task.resume()
     }
     func addWord(wordOrigin: String, wordTranslation: String){
-        var request = URLRequest(url: self.url)
-        request.httpMethod = "POST"
-        let postString = "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation
-        request.httpBody = postString.data(using: .utf8)
+        let request = getPostRequest(url: self.url, postString: "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
             }
-            
-            let data = data!
-            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                print("response = \(response)")
-            }
-            else{
+            self.unwrapDataAndSendMsgToMediator(data: data, response: response!, callback: {
                 self.vocabMediator?.onAdd(origin: wordOrigin)
-            }
-            let responseString = String(data: data, encoding: .utf8)
-            print("responseString = \(responseString)")
+            })
         }
         task.resume()
     }
     func removeByOrigin(origin: String) {
-        var request = URLRequest(url: URL(string: self.urlString+"/deleteWord")!)
-        request.httpMethod = "POST"
-        let postString = "wordOrigin="+origin
-        request.httpBody = postString.data(using: .utf8)
+        let request = getPostRequest(url: URL(string: self.urlString+"/deleteWord")!, postString: "wordOrigin="+origin)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
             }
-            
-            let data = data!
-            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                print("response = \(response)")
-            }
-            else{
+            self.unwrapDataAndSendMsgToMediator(data: data, response: response!, callback: {
                 self.vocabMediator?.onDelete(origin: origin)
-            }
-            let responseString = String(data: data, encoding: .utf8)
-            print("responseString = \(responseString)")
+            })
         }
         task.resume()
+    }
+    private func getPostRequest(url: URL, postString: String) -> URLRequest{
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let postString = postString
+        request.httpBody = postString.data(using: .utf8)
+        return request
+    }
+    private func unwrapDataAndSendMsgToMediator(data: Data?, response: URLResponse, callback:@escaping () -> Void){
+        let data = data!
+        if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
+            print("statusCode should be 200, but is \(httpStatus.statusCode)")
+            print("response = \(response)")
+        }
+        else{
+            callback()
+        }
+        let responseString = String(data: data, encoding: .utf8)
+        print("responseString = \(responseString)")
     }
     private func isFundamentalNetErr(data: Data?, error: Error?) -> Bool{
         guard error == nil else {

@@ -19,10 +19,6 @@ class Vocab : VocabMediatorProtocol {
         }
     }
     public func getWordCard(index: Int) -> String{
-//        if(index>=wordCards.count){
-//            print("error getWordCard")
-//            return " - "
-//        }
         return (self.wordCards[index]["wordOrigin"])! + " - " + (self.wordCards[index]["wordTranslation"])!
     }
     
