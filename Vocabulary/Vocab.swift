@@ -10,7 +10,7 @@ import Foundation
 
 class Vocab : VocabMediatorProtocol {
     var wordCards: [Dictionary<String, String>] = []
-    public var vocabRepository: VocabCoreData
+    public var vocabCoreData: VocabCoreData
     public var vocabRestful: VocabRestful
     private var funcKostil: (()->Void)!
     var amountOfCards: Int{
@@ -24,33 +24,33 @@ class Vocab : VocabMediatorProtocol {
     
     init() {
         self.vocabRestful = VocabRestful("http://localhost:3000/vocab")
-        self.vocabRepository = VocabCoreData()
+        self.vocabCoreData = VocabCoreData()
     }
     
     public func initMediators(){
         self.vocabRestful.vocabMediator = self;
-        self.vocabRepository.vocabMediator = self;
+        self.vocabCoreData.vocabMediator = self;
     }
     
     public func getWords(callback:@escaping ()->Void) {
         funcKostil = callback;
-        if(vocabRepository.isRepositoryEmpty()){
+        if(vocabCoreData.isRepositoryEmpty()){
             vocabRestful.getWords()
         } else {
-            vocabRepository.getWords()
+            vocabCoreData.getWords()
         }
     }
     private func addWordCard(_ wordCard: Dictionary<String, String>){
             self.wordCards.append(wordCard)
     }
     public func synchronizeLocalToServer(callback:@escaping ()->Void){
-        vocabRepository.clearRepositary()
+        vocabCoreData.clearRepositary()
         self.wordCards.removeAll()
         getWords(callback: callback)
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String, callback:@escaping ()->Void){
-        vocabRestful.addWord(wordOrigin, wordTranslation: wordTranslation)
-        vocabRepository.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        vocabRestful.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        vocabCoreData.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
         var wordCardC = Dictionary<String, String>()
         wordCardC["wordOrigin"] = wordOrigin
         wordCardC["wordTranslation"] = wordTranslation
@@ -60,7 +60,7 @@ class Vocab : VocabMediatorProtocol {
     public func deleteWord(_ id: Int, callback:@escaping ()->Void){
         let origin = self.wordCards[id]["wordOrigin"]
         self.vocabRestful.removeByOrigin(origin: origin!)
-        self.vocabRepository.removeByOrigin(origin: origin!)
+        self.vocabCoreData.removeByOrigin(origin: origin!)
         self.wordCards.remove(at: id)
         callback()
     }
@@ -71,9 +71,9 @@ class Vocab : VocabMediatorProtocol {
     }
     func onLoads(wordCards: [Dictionary<String, String>]){
         self.wordCards = wordCards
-        if(vocabRepository.isRepositoryEmpty())
+        if(vocabCoreData.isRepositoryEmpty())
         {
-            self.vocabRepository.saveWordCardsArrayOfDictionaryStrStr(self.wordCards)
+            self.vocabCoreData.saveWordCardsArrayOfDictionaryStrStr(self.wordCards)
         }
         funcKostil()
     }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AC863DC31F066C4B00AB5C82 /* VocabRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC863DC21F066C4B00AB5C82 /* VocabRepositoryProtocol.swift */; };
 		ACA35F0D1F04E29C00AD01A7 /* VocabMediatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA35F0C1F04E29C00AD01A7 /* VocabMediatorProtocol.swift */; };
 		ACB3BEF61EF90A3800DCA247 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3BEF51EF90A3800DCA247 /* AppDelegate.swift */; };
 		ACB3BEF81EF90A3800DCA247 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3BEF71EF90A3800DCA247 /* ViewController.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AC863DC21F066C4B00AB5C82 /* VocabRepositoryProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VocabRepositoryProtocol.swift; sourceTree = "<group>"; };
 		ACA35F0C1F04E29C00AD01A7 /* VocabMediatorProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VocabMediatorProtocol.swift; sourceTree = "<group>"; };
 		ACB3BEF21EF90A3800DCA247 /* Vocabulary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vocabulary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ACB3BEF51EF90A3800DCA247 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				ACD464EF1F024994007C375E /* VocabRestful.swift */,
 				ACD464F11F024A30007C375E /* VocabCoreData.swift */,
 				ACA35F0C1F04E29C00AD01A7 /* VocabMediatorProtocol.swift */,
+				AC863DC21F066C4B00AB5C82 /* VocabRepositoryProtocol.swift */,
 				ACB3BEF91EF90A3800DCA247 /* Main.storyboard */,
 				ACB3BEFF1EF90A3800DCA247 /* Assets.xcassets */,
 				ACB3BF011EF90A3800DCA247 /* LaunchScreen.storyboard */,
@@ -278,6 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ACB8A71B1EFA599400E72292 /* Vocab.swift in Sources */,
+				AC863DC31F066C4B00AB5C82 /* VocabRepositoryProtocol.swift in Sources */,
 				ACB3BEF81EF90A3800DCA247 /* ViewController.swift in Sources */,
 				ACB3BEFE1EF90A3800DCA247 /* Vocabulary.xcdatamodeld in Sources */,
 				ACB3BEF61EF90A3800DCA247 /* AppDelegate.swift in Sources */,

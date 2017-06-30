@@ -11,7 +11,7 @@ import UIKit
 import CoreData
 
 
-class VocabCoreData{
+class VocabCoreData : VocabRepository{
     let entityName: String = "WordCard"
     private var wordCardsManagedObject: [NSManagedObject] = []
     var wordCards : [Dictionary<String, String>] {
@@ -56,7 +56,7 @@ class VocabCoreData{
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        vocabMediator.onLoads(wordCards: self.wordCards)
+        vocabMediator?.onLoads(wordCards: self.wordCards)
     }
     
     func clearRepositary() {
@@ -111,7 +111,7 @@ class VocabCoreData{
         }
         do {
             try managedContext.save()
-            vocabMediator.onDelete(origin: origin)
+            vocabMediator?.onDelete(origin: origin)
         } catch {
             print ("There was an error")
         }

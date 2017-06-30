@@ -8,7 +8,7 @@
 
 import Foundation
 
-class VocabRestful{
+class VocabRestful: VocabRepository{
     let urlString: String
     let url: URL
     private var wordCardsDict: [Dictionary<String, AnyObject>] = []
@@ -44,7 +44,7 @@ class VocabRestful{
         }
         task.resume()
     }
-    func addWord(_ wordOrigin: String, wordTranslation: String){
+    func addWord(wordOrigin: String, wordTranslation: String){
         var request = URLRequest(url: self.url)
         request.httpMethod = "POST"
         let postString = "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation
@@ -82,7 +82,7 @@ class VocabRestful{
                 print("response = \(response)")
             }
             else{
-                self.vocabMediator.onDelete(origin: origin)
+                self.vocabMediator?.onDelete(origin: origin)
             }
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(responseString)")
@@ -100,4 +100,12 @@ class VocabRestful{
         }
         return false
     }
+    
+    //MARK: fisnish this part
+    func isRepositoryEmpty() -> Bool {
+        return false;
+    }
+    func saveWordCardsArrayOfDictionaryStrStr(_ wordCards: [Dictionary<String, String>]) { }
+    func clearRepositary() { }
+    
 }
