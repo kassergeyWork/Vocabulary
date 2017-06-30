@@ -100,21 +100,22 @@ class VocabRepository{
         }
     }
     func removeByOrigin(origin: String) {
-                guard let managedContext = self.getManagedContext() else{
-                    return
-                }
-                let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
-                fetchRequest.predicate = NSPredicate.init(format: "wordOrigin = %@", origin)
-                if let result = try? managedContext.fetch(fetchRequest) {
-                    for object in result {
-                        managedContext.delete(object)
-                    }
-                }
-                do {
-                    try managedContext.save()
-                } catch {
-                    print ("There was an error")
-                }
+        guard let managedContext = self.getManagedContext() else{
+            return
+        }
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
+        fetchRequest.predicate = NSPredicate.init(format: "wordOrigin = %@", origin)
+        if let result = try? managedContext.fetch(fetchRequest) {
+            for object in result {
+                managedContext.delete(object)
+            }
+        }
+        do {
+            try managedContext.save()
+            vocabMediator.onDelete(origin: origin)
+        } catch {
+            print ("There was an error")
+        }
     }
     private func getManagedContext() -> NSManagedObjectContext?{
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {

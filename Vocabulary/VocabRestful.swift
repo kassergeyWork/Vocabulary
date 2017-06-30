@@ -67,7 +67,7 @@ class VocabRestful{
         task.resume()
     }
     func removeByOrigin(origin: String) {
-        var request = URLRequest(url: URL(string: self.urlString+"/getWord")!)
+        var request = URLRequest(url: URL(string: self.urlString+"/deleteWord")!)
         request.httpMethod = "POST"
         let postString = "wordOrigin="+origin
         request.httpBody = postString.data(using: .utf8)
@@ -82,31 +82,12 @@ class VocabRestful{
                 print("response = \(response)")
             }
             else{
-                let json = try! JSONSerialization.jsonObject(with: data, options: [])
-                let jsonArr = json as! Dictionary<String, AnyObject>
-                let id = jsonArr["_id"] as! String
-                var request1 = URLRequest(url: URL(string: self.urlString+"/"+id)!)
-                request1.httpMethod = "DELETE"
-                let task1 = URLSession.shared.dataTask(with: request1) { data, response, error in
-                    if(self.isFundamentalNetErr(data: data, error: error)){
-                        return
-                    }
-                    let data = data!
-                    if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                        print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                        print("response = \(response)")
-                    }
-                    
-                    let responseString = String(data: data, encoding: .utf8)
-                    print("responseString = \(responseString)")
-                }
-                task1.resume()
+                vocabMediator.onDelete()
             }
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(responseString)")
         }
         task.resume()
-        
     }
     private func isFundamentalNetErr(data: Data?, error: Error?) -> Bool{
         guard error == nil else {

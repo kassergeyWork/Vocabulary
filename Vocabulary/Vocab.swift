@@ -66,7 +66,7 @@ class Vocab : VocabMediatorProtocol {
     }
     
     //MARK: VocabMediatorProtocol
-    func onDelete(id: String){
+    func onDelete(origin: String){
         
     }
     func onLoads(wordCards: [Dictionary<String, String>]){
