@@ -1,5 +1,5 @@
 //
-//  VocabRestful.swift
+//  VocabRepository.swift
 //  Vocabulary
 //
 //  Created by Гость on 27.06.17.
@@ -7,23 +7,21 @@
 //
 
 import Foundation
+import UIKit
+import CoreData
 
-class VocabRestful{
-    let urlString: String
-    let url: URL
-    private var wordCardsDict: [Dictionary<String, AnyObject>] = []
-    init(_ urlString: String){
-        self.urlString = urlString
-        self.url = URL(string: urlString)!
-    }
+
+class VocabCoreData{
+    let entityName: String = "WordCard"
+    private var wordCardsManagedObject: [NSManagedObject] = []
     var wordCards : [Dictionary<String, String>] {
         get{
             var wordCardsRet: [Dictionary<String, String>] = []
-            for anItem in wordCardsDict{
+            for anItem in wordCardsManagedObject{
                 var wordCard = Dictionary<String, String>()
-                wordCard["wordOrigin"] = anItem["wordOrigin"] as? String
-                wordCard["wordTranslation"] = anItem["wordTranslation"] as? String
-                wordCard["id"] = anItem["_id"] as? String
+                wordCard["wordOrigin"] = anItem.value(forKeyPath: "wordOrigin") as? String
+                wordCard["wordTranslation"] = anItem.value(forKeyPath: "wordTranslation") as? String
+                wordCard["id"] = anItem.value(forKeyPath: "id") as? String
                 wordCardsRet.append(wordCard)
             }
             return wordCardsRet
@@ -32,72 +30,96 @@ class VocabRestful{
     
     var vocabMediator: VocabMediatorProtocol!
     
-    func getWords(){
-        let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
-            if(self.isFundamentalNetErr(data: data, error: error)){
-                return
-            }
-            let data = data!
-            let json = try! JSONSerialization.jsonObject(with: data, options: [])
-            self.wordCardsDict = json as! [Dictionary<String, AnyObject>]
-            self.vocabMediator?.onLoads(wordCards: self.wordCards)
-        }
-        task.resume()
-    }
-    func addWord(_ wordOrigin: String, wordTranslation: String){
-        var request = URLRequest(url: self.url)
-        request.httpMethod = "POST"
-        let postString = "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation
-        request.httpBody = postString.data(using: .utf8)
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if(self.isFundamentalNetErr(data: data, error: error)){
-                return
-            }
-            
-            let data = data!
-            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                print("response = \(response)")
-            }
-            else{
-            }
-            let responseString = String(data: data, encoding: .utf8)
-            print("responseString = \(responseString)")
-        }
-        task.resume()
-    }
-    func removeByOrigin(origin: String) {
-        var request = URLRequest(url: URL(string: self.urlString+"/deleteWord")!)
-        request.httpMethod = "POST"
-        let postString = "wordOrigin="+origin
-        request.httpBody = postString.data(using: .utf8)
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if(self.isFundamentalNetErr(data: data, error: error)){
-                return
-            }
-            
-            let data = data!
-            if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                print("response = \(response)")
-            }
-            else{
-                self.vocabMediator.onDelete(origin: origin)
-            }
-            let responseString = String(data: data, encoding: .utf8)
-            print("responseString = \(responseString)")
-        }
-        task.resume()
-    }
-    private func isFundamentalNetErr(data: Data?, error: Error?) -> Bool{
-        guard error == nil else {
-            print(error!)
+    func isRepositoryEmpty() -> Bool {
+        guard let managedContext = self.getManagedContext() else{
             return true
         }
-        guard data != nil else {
-            print("Data is empty")
-            return true
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+        do {
+            self.wordCardsManagedObject = try managedContext.fetch(fetchRequest)
+            if(wordCardsManagedObject.count == 0){
+                return true
+            }
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
         }
         return false
+    }
+    
+    func getWords(){
+        guard let managedContext = self.getManagedContext() else{
+            return
+        }
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+        do {
+            wordCardsManagedObject = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        vocabMediator.onLoads(wordCards: self.wordCards)
+    }
+    
+    func clearRepositary() {
+        guard let managedContext = self.getManagedContext() else{
+            return
+        }
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let request = NSBatchDeleteRequest(fetchRequest: fetch)
+        do{
+            try managedContext.execute(request)
+        }
+        catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+            return
+        }
+    }
+    
+    func saveWordCardsArrayOfDictionaryStrStr(_ wordCards: [Dictionary<String, String>]){
+        for anItem in wordCards {
+            let wordOrigin = anItem["wordOrigin"]!
+            let wordTranslation = anItem["wordTranslation"]!
+            self.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        }
+    }
+    
+    func addWord(wordOrigin: String, wordTranslation: String) {
+        guard let managedContext = self.getManagedContext() else{
+            return
+        }
+        let entity = NSEntityDescription.entity(forEntityName: entityName,
+                                       in: managedContext)!
+        
+        let wordCard = NSManagedObject(entity: entity, insertInto: managedContext)
+        wordCard.setValue(wordOrigin, forKeyPath: "wordOrigin")
+        wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
+        do {
+            try managedContext.save()
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+        }
+    }
+    func removeByOrigin(origin: String) {
+        guard let managedContext = self.getManagedContext() else{
+            return
+        }
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
+        fetchRequest.predicate = NSPredicate.init(format: "wordOrigin = %@", origin)
+        if let result = try? managedContext.fetch(fetchRequest) {
+            for object in result {
+                managedContext.delete(object)
+            }
+        }
+        do {
+            try managedContext.save()
+            vocabMediator.onDelete(origin: origin)
+        } catch {
+            print ("There was an error")
+        }
+    }
+    private func getManagedContext() -> NSManagedObjectContext?{
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+                return nil
+        }
+        return appDelegate.persistentContainer.viewContext
     }
 }
