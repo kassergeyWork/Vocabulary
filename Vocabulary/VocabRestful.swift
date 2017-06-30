@@ -60,6 +60,7 @@ class VocabRestful: VocabRepository{
                 print("response = \(response)")
             }
             else{
+                self.vocabMediator?.onAdd(origin: wordOrigin)
             }
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(responseString)")
@@ -101,7 +102,7 @@ class VocabRestful: VocabRepository{
         return false
     }
     
-    //MARK: fisnish this part
+    //MARK: will fisnish this part
     func isRepositoryEmpty() -> Bool {
         return false;
     }

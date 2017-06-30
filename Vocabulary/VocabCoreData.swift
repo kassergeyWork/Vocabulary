@@ -94,6 +94,7 @@ class VocabCoreData : VocabRepository{
         wordCard.setValue(wordTranslation, forKeyPath: "wordTranslation")
         do {
             try managedContext.save()
+            self.vocabMediator?.onAdd(origin: wordOrigin)
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }

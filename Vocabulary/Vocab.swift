@@ -65,9 +65,9 @@ class Vocab : VocabMediatorProtocol {
         callback()
     }
     
-    //MARK: VocabMediatorProtocol
+    //MARK: VocabMediatorProtocol should be implemented
     func onDelete(origin: String){
-        
+        print("word deleted "+origin)
     }
     func onLoads(wordCards: [Dictionary<String, String>]){
         self.wordCards = wordCards
@@ -77,7 +77,7 @@ class Vocab : VocabMediatorProtocol {
         }
         funcKostil()
     }
-    func onAdd(id: String){
+    func onAdd(origin: String){
         
     }
 }
