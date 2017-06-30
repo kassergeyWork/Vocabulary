@@ -11,7 +11,7 @@ import UIKit
 import CoreData
 
 
-class VocabRepository{
+class VocabCoreData{
     let entityName: String = "WordCard"
     private var wordCardsManagedObject: [NSManagedObject] = []
     var wordCards : [Dictionary<String, String>] {
@@ -78,11 +78,11 @@ class VocabRepository{
         for anItem in wordCards {
             let wordOrigin = anItem["wordOrigin"]!
             let wordTranslation = anItem["wordTranslation"]!
-            self.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+            self.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
         }
     }
     
-    func save(wordOrigin: String, wordTranslation: String) {
+    func addWord(wordOrigin: String, wordTranslation: String) {
         guard let managedContext = self.getManagedContext() else{
             return
         }

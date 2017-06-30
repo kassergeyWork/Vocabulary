@@ -10,7 +10,7 @@ import Foundation
 
 class Vocab : VocabMediatorProtocol {
     var wordCards: [Dictionary<String, String>] = []
-    public var vocabRepository: VocabRepository
+    public var vocabRepository: VocabCoreData
     public var vocabRestful: VocabRestful
     private var funcKostil: (()->Void)!
     var amountOfCards: Int{
@@ -24,7 +24,7 @@ class Vocab : VocabMediatorProtocol {
     
     init() {
         self.vocabRestful = VocabRestful("http://localhost:3000/vocab")
-        self.vocabRepository = VocabRepository()
+        self.vocabRepository = VocabCoreData()
     }
     
     public func initMediators(){
@@ -50,7 +50,7 @@ class Vocab : VocabMediatorProtocol {
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String, callback:@escaping ()->Void){
         vocabRestful.addWord(wordOrigin, wordTranslation: wordTranslation)
-        vocabRepository.save(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        vocabRepository.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
         var wordCardC = Dictionary<String, String>()
         wordCardC["wordOrigin"] = wordOrigin
         wordCardC["wordTranslation"] = wordTranslation

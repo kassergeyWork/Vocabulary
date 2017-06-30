@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ACA35F0D1F04E29C00AD01A7 /* VocabMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA35F0C1F04E29C00AD01A7 /* VocabMediator.swift */; };
+		ACA35F0D1F04E29C00AD01A7 /* VocabMediatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA35F0C1F04E29C00AD01A7 /* VocabMediatorProtocol.swift */; };
 		ACB3BEF61EF90A3800DCA247 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3BEF51EF90A3800DCA247 /* AppDelegate.swift */; };
 		ACB3BEF81EF90A3800DCA247 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3BEF71EF90A3800DCA247 /* ViewController.swift */; };
 		ACB3BEFB1EF90A3800DCA247 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ACB3BEF91EF90A3800DCA247 /* Main.storyboard */; };
@@ -40,7 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		ACA35F0C1F04E29C00AD01A7 /* VocabMediator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VocabMediator.swift; sourceTree = "<group>"; };
+		ACA35F0C1F04E29C00AD01A7 /* VocabMediatorProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VocabMediatorProtocol.swift; sourceTree = "<group>"; };
 		ACB3BEF21EF90A3800DCA247 /* Vocabulary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vocabulary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ACB3BEF51EF90A3800DCA247 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ACB3BEF71EF90A3800DCA247 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -115,7 +115,7 @@
 				ACB8A71A1EFA599400E72292 /* Vocab.swift */,
 				ACD464EF1F024994007C375E /* VocabRestful.swift */,
 				ACD464F11F024A30007C375E /* VocabRepository.swift */,
-				ACA35F0C1F04E29C00AD01A7 /* VocabMediator.swift */,
+				ACA35F0C1F04E29C00AD01A7 /* VocabMediatorProtocol.swift */,
 				ACB3BEF91EF90A3800DCA247 /* Main.storyboard */,
 				ACB3BEFF1EF90A3800DCA247 /* Assets.xcassets */,
 				ACB3BF011EF90A3800DCA247 /* LaunchScreen.storyboard */,
@@ -283,7 +283,7 @@
 				ACB3BEF61EF90A3800DCA247 /* AppDelegate.swift in Sources */,
 				ACB8A7191EF94BF200E72292 /* WordCards.swift in Sources */,
 				ACD464F01F024994007C375E /* VocabRestful.swift in Sources */,
-				ACA35F0D1F04E29C00AD01A7 /* VocabMediator.swift in Sources */,
+				ACA35F0D1F04E29C00AD01A7 /* VocabMediatorProtocol.swift in Sources */,
 				ACD464F21F024A30007C375E /* VocabRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
