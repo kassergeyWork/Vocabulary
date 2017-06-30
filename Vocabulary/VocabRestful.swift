@@ -82,7 +82,7 @@ class VocabRestful{
                 print("response = \(response)")
             }
             else{
-                vocabMediator.onDelete()
+                self.vocabMediator.onDelete(origin: origin)
             }
             let responseString = String(data: data, encoding: .utf8)
             print("responseString = \(responseString)")
