@@ -44,17 +44,16 @@ class Vocab : VocabMediatorProtocol {
             self.wordCards.append(wordCard)
     }
     public func synchronizeLocalToServer(){
-        vocabCoreData.clearRepositary()
-        self.wordCards.removeAll()
-        getWords()
+        vocabRestful.clearRepositary()
+        vocabCoreData.getWords()
     }
     public func addWord(_ wordOrigin: String, wordTranslation: String){
-        vocabRestful.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
-        vocabCoreData.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
         var wordCardC = Dictionary<String, String>()
         wordCardC["wordOrigin"] = wordOrigin
         wordCardC["wordTranslation"] = wordTranslation
         self.addWordCard(wordCardC)
+        vocabRestful.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        vocabCoreData.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
     }
     public func deleteWord(_ id: Int){
         let origin = self.wordCards[id]["wordOrigin"]
@@ -73,6 +72,9 @@ class Vocab : VocabMediatorProtocol {
         if(vocabCoreData.isRepositoryEmpty())
         {
             self.vocabCoreData.saveWordCardsArrayOfDictionaryStrStr(self.wordCards)
+        }
+        if(vocabRestful.isRepositoryEmpty()){
+            self.vocabRestful.saveWordCardsArrayOfDictionaryStrStr(self.wordCards)
         }
         funcKostil()
     }

@@ -37,6 +37,11 @@ class VocabRestful: VocabRepositary{
     }
     
     func getWords(){
+        getWordsAndRunCallback {
+            self.vocabMediator?.onLoads(wordCards: self.wordCards)
+        }
+    }
+    private func getWordsAndRunCallback(callback:@escaping () -> Void){
         let task = URLSession.shared.dataTask(with: self.url) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
@@ -44,12 +49,12 @@ class VocabRestful: VocabRepositary{
             let data = data!
             let json = try! JSONSerialization.jsonObject(with: data, options: [])
             self.wordCardsDict = json as! [Dictionary<String, AnyObject>]
-            self.vocabMediator?.onLoads(wordCards: self.wordCards)
+            callback()
         }
         task.resume()
     }
     func addWord(wordOrigin: String, wordTranslation: String){
-        let request = getPostRequest(url: self.url, postString: "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation)
+        let request = getRequest(url: self.url, httpMethod: "POST", postString: "wordOrigin="+wordOrigin+"&wordTranslation="+wordTranslation)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
@@ -61,7 +66,7 @@ class VocabRestful: VocabRepositary{
         task.resume()
     }
     func removeByOrigin(origin: String) {
-        let request = getPostRequest(url: URL(string: self.urlString+"/deleteWord")!, postString: "wordOrigin="+origin)
+        let request = getRequest(url: URL(string: self.urlString+"/deleteWord")!, httpMethod: "POST",postString: "wordOrigin="+origin)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if(self.isFundamentalNetErr(data: data, error: error)){
                 return
@@ -72,9 +77,9 @@ class VocabRestful: VocabRepositary{
         }
         task.resume()
     }
-    private func getPostRequest(url: URL, postString: String) -> URLRequest{
+    private func getRequest(url: URL, httpMethod: String, postString: String) -> URLRequest{
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = httpMethod
         let postString = postString
         request.httpBody = postString.data(using: .utf8)
         return request
@@ -102,12 +107,27 @@ class VocabRestful: VocabRepositary{
         }
         return false
     }
-    
-    //MARK: will fisnish this part
-    func isRepositoryEmpty() -> Bool {
-        return false;
+    func saveWordCardsArrayOfDictionaryStrStr(_ wordCards: [Dictionary<String, String>]) {
+        for wc in wordCards {
+            let wordOrigin = wc["wordOrigin"]!
+            let wordTranslation = wc["wordTranslation"]!
+            self.addWord(wordOrigin: wordOrigin, wordTranslation: wordTranslation)
+        }
     }
-    func saveWordCardsArrayOfDictionaryStrStr(_ wordCards: [Dictionary<String, String>]) { }
-    func clearRepositary() { }
+    func clearRepositary() {
+        let request = getRequest(url: URL(string: self.urlString+"/deleteWord")!, httpMethod: "DELETE",postString: "")
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if(self.isFundamentalNetErr(data: data, error: error)){
+                return
+            }
+            self.unwrapDataAndSendMsgToMediator(data: data, response: response!, callback: { })
+        }
+        task.resume()
+    }
+    
+    func isRepositoryEmpty() -> Bool {
+        getWordsAndRunCallback { }
+        return wordCardsDict.count==0
+    }
     
 }
